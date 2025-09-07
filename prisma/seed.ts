@@ -1,105 +1,13 @@
-import { Injectable } from '@nestjs/common';
-
-import { PrismaService } from 'src/prisma/prisma.service';
-
-import { InternalServerErrorException } from '@nestjs/common';
+import { PrismaClient } from "@prisma/client";
 
 
-@Injectable()
-export class DashboardService {
-
-
-
-  constructor(private prisma: PrismaService) {}
-
-  async getDashboardData() {
-    try {
-      const salesDashboardMetrics = await this.prisma.salesDashboardMetric.findMany();
-      const visitorInsights = await this.prisma.visitorInsight.findMany();
-      const totalRevenueChart = await this.prisma.totalRevenue.findMany();
-      const customerSatisfaction = await this.prisma.customerSatisfactionPoint.findMany();
-      const targetVsReality = await this.prisma.targetVsReality.findMany();
-      const topProducts = await this.prisma.topProduct.findMany();
-      const highlightedCountries = await this.prisma.highlightedCountry.findMany();
-      const volumeServiceChart = await this.prisma.volumeService.findMany();
-
-      return {
-        salesDashboardMetrics,
-        visitorInsights,
-        totalRevenueChart,
-        customerSatisfaction,
-        targetVsReality,
-        topProducts,
-        highlightedCountries,
-        volumeServiceChart,
-      };
-    } catch (error) {
-      console.error('DashboardService error:', error);
-
-      // Wrap Prisma errors into a clean API response
-      throw new InternalServerErrorException({
-        success: false,
-        message: 'Failed to fetch dashboard data',
-        error: error?.message || 'Unknown error',
-      });
-    }
-  }
-  
+const prisma =  new PrismaClient();
 
 
 
 
 
-
-  getMetrics() {
-    return {
-      totalUsers: 1240,
-      activeUsers: 890,
-      sales: 45200,
-      growth: '12%',
-    };
-  }
-
-  getRevenue() {
-    return {
-      currentMonth: 12000,
-      previousMonth: 9500,
-      change: '+26%',
-    };
-  }
-
-  getCustomerSatisfaction() {
-    return {
-      score: 87,
-      trend: 'up',
-    };
-  }
-
-  getVisitorInsights() {
-    return {
-      dailyVisitors: [120, 340, 560, 220, 450, 610, 720],
-      topCountries: ['US', 'India', 'UK', 'Germany'],
-    };
-  }
-
-
-getanalytics() {
-
-    return dashboardData;
-}
-
-  getTopProducts() {
-    return [
-      { name: 'Product A', sales: 1500 },
-      { name: 'Product B', sales: 1200 },
-      { name: 'Product C', sales: 900 },
-    ];
-  }
-}
-
-
-
-export const dashboardData={
+const dashboardData={
   "salesDashboardMetrics": [
     {
       "id": 1,
@@ -240,3 +148,84 @@ export const dashboardData={
     { "volume": 55, "services": 35 }
   ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+async function main() {
+  // Sales Dashboard Metrics
+  await prisma.salesDashboardMetric.createMany({
+    data: dashboardData.salesDashboardMetrics,
+  });
+
+  // Visitor Insights
+  await prisma.visitorInsight.createMany({
+    data: dashboardData.visitorInsights,
+  });
+
+  // Total Revenue Chart
+  await prisma.totalRevenue.createMany({
+    data: dashboardData.totalRevenueChart,
+  });
+
+  // Customer Satisfaction Points (lastMonth and thisMonth)
+  const lastMonthPoints = dashboardData.customerSatisfaction.lastMonthData.map(p => ({
+    dataset: 'lastMonth',
+    x: p.x,
+    y: p.y,
+  }));
+
+  const thisMonthPoints = dashboardData.customerSatisfaction.thisMonthData.map(p => ({
+    dataset: 'thisMonth',
+    x: p.x,
+    y: p.y,
+  }));
+
+  await prisma.customerSatisfactionPoint.createMany({
+    data: [...lastMonthPoints, ...thisMonthPoints],
+  });
+
+  // Target vs Reality
+  await prisma.targetVsReality.createMany({
+    data: dashboardData.targetVsReality,
+  });
+
+  // Top Products
+  await prisma.topProduct.createMany({
+    data: dashboardData.topProducts,
+  });
+
+  // Highlighted Countries
+  const countriesData = Object.entries(dashboardData.highlightedCountries).map(
+    ([countryCode, color]) => ({ countryCode, color })
+  );
+
+  await prisma.highlightedCountry.createMany({
+    data: countriesData,
+  });
+
+  // Volume Service Chart
+  await prisma.volumeService.createMany({
+    data: dashboardData.volumeServiceChartSkeleton,
+  });
+}
+
+main()
+  .then(() => console.log("Seeding finished. 🌱"))
+  .catch((e) => console.error(e))
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+
+
+
+
+   

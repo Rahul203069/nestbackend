@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model SalesDashboardMetric {
+  id        Int    @id @default(autoincrement())
+  icon      String
+  value     String
+  label     String
+  change    String
+  bgColor   String
+  iconColor String
+}
+
+model VisitorInsight {
+  id             Int    @id @default(autoincrement())
+  month          String
+  loyalCustomers Int
+  newCustomers   Int
+  uniqueCustomers Int
+}
+
+model TotalRevenue {
+  id           Int    @id @default(autoincrement())
+  name         String   // e.g. Monday
+  onlineSales  Int
+  offlineSales Int
+}
+
+model CustomerSatisfactionPoint {
+  id        Int    @id @default(autoincrement())
+  dataset   String // "lastMonth" or "thisMonth"
+  x         Int
+  y         Int
+}
+
+model TargetVsReality {
+  id      Int    @id @default(autoincrement())
+  month   String
+  reality Int
+  target  Int
+}
+
+model TopProduct {
+  id        String @id
+  name      String
+  popularity Int
+  sales      Int
+  color      String
+  lightColor String
+}
+
+model HighlightedCountry {
+  id         Int    @id @default(autoincrement())
+  countryCode String
+  color       String
+}
+
+model VolumeService {
+  id       Int @id @default(autoincrement())
+  volume   Int
+  services Int
+}

@@ -13,7 +13,10 @@ export class DashboardController {
   }
 
 
-
+@Get('data')
+  async getDashboardData() {
+    return this.dashboardService.getDashboardData();
+  }
 
   @Get('revenue')
   getRevenue() {
