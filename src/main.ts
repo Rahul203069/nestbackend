@@ -8,6 +8,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   // Logging
+
+  app.enableCors({
+    origin: "*", // frontend URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   app.useLogger(app.get(Logger));
 
   // Prefix for all routes
